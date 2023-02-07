@@ -1,0 +1,20 @@
+-
+  name: 获得token接口
+  desc: 获得token接口
+  base_url: https://api.weixin.qq.com
+  request:
+    method: get
+    url: /cgi-bin/token
+    params:
+      grant_type: client_credential
+      appid: wx74a8627810cfa308
+      secret: e40a02f9d79a8097df497e6aaf93ab80
+  #json表达式提取，正则表达式提取
+  extract:
+    #key是写入extract文件的key,value（access_token）是查找result json文件的key
+    access_token: access_token
+#    access_token: '"access_token":"(.*?)"'
+  validate:
+  - equals: {status_code: 200}
+  - equals: {expires_in: 7200}
+  - contains: access_token

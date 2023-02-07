@@ -1,0 +1,6 @@
+pytest
+pytest-html
+pytest-xdist
+pytest-ordering
+allure-pytest
+pytest-refunfailures

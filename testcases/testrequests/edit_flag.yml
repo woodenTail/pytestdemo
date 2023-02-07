@@ -1,0 +1,14 @@
+-
+  name: 编辑标签接口
+  base_url: https://api.weixin.qq.com
+  request:
+    method: post
+    url: /cgi-bin/tags/update?access_token=${get_extract_data(access_token)}
+    json:
+      {"tag":{"id":8558, "name":"木鸢${get_random_number(10000,99999)}"}}
+#  extract:
+#    #key是写入extract文件的key,value（access_token）是查找result json文件的key
+#    access_token: access_token
+  validate:
+   - equals: {errcode: 0}
+   - equals: {errmsg: ok}

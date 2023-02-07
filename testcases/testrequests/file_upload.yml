@@ -1,0 +1,12 @@
+-
+  name: 文件上传接口
+  base_url: https://api.weixin.qq.com
+  request:
+    method: post
+    url: /cgi-bin/media/uploadimg?access_token=${get_extract_data(access_token)}
+    files:
+        media: "d:\\1.png"
+
+  validate:
+   - equals: {status_code: 200}
+   - contains: url
