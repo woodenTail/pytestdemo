@@ -18,5 +18,11 @@
  5.热加载：
     当yaml需要使用动态参数时，那么可以做debug_talk.py文件中写方法调用
     注意：传参时，需要什么类型的数据，需要做强转，int（min）
+6.csv
+    name,appid,secret,grant_type,assert_str
+    获得token接口,wx74a8627810cfa308,e40a02f9d79a8097df497e6aaf93ab80,client_credential,access_token
+    appid必填项检查,"",e40a02f9d79a8097df497e6aaf93ab80,client_credential,errcode
+    secret必填项检查,wx74a8627810cfa308,"",client_credential,errcode
 
+7.日志
 

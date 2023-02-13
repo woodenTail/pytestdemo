@@ -1,14 +1,39 @@
+#-
+#  name: 获得token接口
+#  desc: 获得token接口
+#  base_url: https://api.weixin.qq.com
+#  request:
+#    method: get
+#    url: /cgi-bin/token
+#    params:
+#      appid: wx74a8627810cfa308
+#      secret: e40a02f9d79a8097df497e6aaf93ab80
+#      grant_type: client_credential
+#
+#  #json表达式提取，正则表达式提取
+#  extract:
+#    #key是写入extract文件的key,value（access_token）是查找result json文件的key
+#    access_token: access_token
+##    access_token: '"access_token":"(.*?)"'
+#  validate:
+#  - equals: {status_code: 200}
+#  - equals: {expires_in: 7200}
+#  - contains: access_token
+
 -
-  name: 获得token接口
+  name: $csv{name}
   desc: 获得token接口
   base_url: https://api.weixin.qq.com
+  parameters:
+      name-appid-secret-grant_type-assert_str: data/get_token.csv
   request:
     method: get
     url: /cgi-bin/token
     params:
-      grant_type: client_credential
-      appid: wx74a8627810cfa308
-      secret: e40a02f9d79a8097df497e6aaf93ab80
+      appid: $csv{appid}
+      secret:  $csv{secret}
+      grant_type: $csv{grant_type}
+
   #json表达式提取，正则表达式提取
   extract:
     #key是写入extract文件的key,value（access_token）是查找result json文件的key
@@ -16,5 +41,6 @@
 #    access_token: '"access_token":"(.*?)"'
   validate:
   - equals: {status_code: 200}
-  - equals: {expires_in: 7200}
-  - contains: access_token
+#  - equals: {expires_in: 7200}
+  - contains: $csv{assert_str}
+

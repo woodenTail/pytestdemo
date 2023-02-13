@@ -1,0 +1,4 @@
+name,appid,secret,grant_type,assert_str
+获得token接口,wx74a8627810cfa308,e40a02f9d79a8097df497e6aaf93ab80,client_credential,access_token
+appid必填项检查,"",e40a02f9d79a8097df497e6aaf93ab80,client_credential,errcode
+secret必填项检查,wx74a8627810cfa308,"",client_credential,errcode

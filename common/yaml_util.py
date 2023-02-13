@@ -31,11 +31,11 @@ def clear_extract_file():
     with open(get_object_path() + "/extract.yml", encoding="utf-8", mode='w') as f:
         f.truncate()
 
-#读取yaml测试用例文件
-def read_testcase_file(yaml_path):
-    with open(get_object_path()+yaml_path, encoding="utf-8") as f:
-        value = yaml.load(stream=f, Loader=yaml.FullLoader)
-        return value
+# #读取yaml测试用例文件
+# def read_testcase_file(yaml_path):
+#     with open(get_object_path()+yaml_path, encoding="utf-8") as f:
+#         value = yaml.load(stream=f, Loader=yaml.FullLoader)
+#         return value
 
 
 

@@ -60,8 +60,9 @@ class RequestUtil:
                                 extract_data = {key: ze_value.group(1)}
                                 write_extract_file(extract_data)
                         else: #json提取
-                            extract_data = {key: return_data[value]}
-                            write_extract_file(extract_data)
+                            if value in return_data:
+                                extract_data = {key: return_data[value]}
+                                write_extract_file(extract_data)
                 # 断言的封装
                 yq_result = caseinfo['validate']
                 self.validate_result(yq_result, return_data, res.status_code)
