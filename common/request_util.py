@@ -1,10 +1,12 @@
 import json
 import re
+import traceback
 
 import jsonpath as jsonpath
 import requests
 
 from common import yaml_util
+from common.logger_util import write_log, error_log
 from common.yaml_util import read_config_file, read_extract_file, write_extract_file
 from debug_talk import DebugTalk
 
@@ -13,64 +15,70 @@ class RequestUtil:
 
     session = requests.session()
 
-    def __init__(self, base, base_url):
-        self.base_url = read_config_file(base, base_url)
+    def __init__(self):
+        self.base_url =""
         self.last_header = {}
 
     #规范功能测试yaml文件的写法
     def analysis_yaml(self, caseinfo):
-        #1.必须有的四个一级关键字：name,base_url,request,validate
-        caseinfo_keys = dict(caseinfo).keys()
-        if 'name' in caseinfo_keys and 'base_url' in caseinfo_keys and 'request' in caseinfo_keys\
-                and 'validate' in caseinfo_keys:
-            #2.在request一级关键字下必须包含两个二级关键字，method、URL
-            request_keys = dict(caseinfo['request']).keys()
+        try:
+            #1.必须有的四个一级关键字：name,base_url,request,validate
+            caseinfo_keys = dict(caseinfo).keys()
+            if 'name' in caseinfo_keys and 'base_url' in caseinfo_keys and 'request' in caseinfo_keys\
+                    and 'validate' in caseinfo_keys:
+                #2.在request一级关键字下必须包含两个二级关键字，method、URL
+                request_keys = dict(caseinfo['request']).keys()
 
-            if 'method' in request_keys and 'url' in request_keys:
-                headers = None
-                method = caseinfo['request']['method']
-                del caseinfo['request']['method']
-                url = caseinfo['request']['url']
-                del caseinfo['request']['url']
+                if 'method' in request_keys and 'url' in request_keys:
+                    self.base_url = caseinfo['base_url']
+                    headers = None
+                    name =caseinfo['name']
+                    method = caseinfo['request']['method']
+                    del caseinfo['request']['method']
+                    url = caseinfo['request']['url']
+                    del caseinfo['request']['url']
 
-                if jsonpath.jsonpath(caseinfo, '$..headers'):
-                    headers = caseinfo['request']['headers']
-                    del caseinfo['request']['headers']
-                files = None
-                if jsonpath.jsonpath(caseinfo, '$..files'):
-                    files = caseinfo['request']['files']
-                    for key,value in dict(files).items():
-                        files[key] = open(value,'rb')
-                    del caseinfo['request']['files']
+                    if jsonpath.jsonpath(caseinfo, '$..headers'):
+                        headers = caseinfo['request']['headers']
+                        del caseinfo['request']['headers']
+                    files = None
+                    if jsonpath.jsonpath(caseinfo, '$..files'):
+                        files = caseinfo['request']['files']
+                        for key,value in dict(files).items():
+                            files[key] = open(value,'rb')
+                        del caseinfo['request']['files']
 
-                res = self.send_request(method=method,
-                                        url=url,
-                                        headers=headers,files=files,
-                                        **caseinfo['request'])
-                return_data = res.json()
-                return_text = res.text
+                    res = self.send_request(name, method=method,
+                                            url=url,
+                                            headers=headers,files=files,
+                                            **caseinfo['request'])
+                    return_data = res.json()
+                    return_text = res.text
 
-                #提取接口关联的变量,既要支持正则表达式，又要支持json提取
-                if 'extract' in caseinfo_keys:
-                    for key,value in dict(caseinfo['extract']).items():
-                        # 正则提取
-                        if '(.+?)' in value or '(.*?)' in value:
-                            ze_value = re.search(value, return_text)
-                            if ze_value:
-                                extract_data = {key: ze_value.group(1)}
-                                write_extract_file(extract_data)
-                        else: #json提取
-                            if value in return_data:
-                                extract_data = {key: return_data[value]}
-                                write_extract_file(extract_data)
-                # 断言的封装
-                yq_result = caseinfo['validate']
-                self.validate_result(yq_result, return_data, res.status_code)
-                return res
+                    #提取接口关联的变量,既要支持正则表达式，又要支持json提取
+                    if 'extract' in caseinfo_keys:
+                        for key,value in dict(caseinfo['extract']).items():
+                            # 正则提取
+                            if '(.+?)' in value or '(.*?)' in value:
+                                ze_value = re.search(value, return_text)
+                                if ze_value:
+                                    extract_data = {key: ze_value.group(1)}
+                                    write_extract_file(extract_data)
+                            else: #json提取
+                                if value in return_data:
+                                    extract_data = {key: return_data[value]}
+                                    write_extract_file(extract_data)
+                    # 断言的封装
+                    yq_result = caseinfo['validate']
+                    self.validate_result(yq_result, return_data, res.status_code)
+                    write_log("--------接口请求结束--------\n")
+                    return res
+                else:
+                    error_log('在request一级关键字下必须包含两个二级关键字，method、URL')
             else:
-                print('在request一级关键字下必须包含两个二级关键字，method、URL')
-        else:
-            print('必须有的四个一级关键字：name,base_url,request,validate')
+                error_log('必须有的四个一级关键字：name,base_url,request,validate')
+        except Exception as f:
+            error_log("分析yaml文件异常：%s" % str(traceback.format_exc()))
 
     #统一替换的方法
     # def replace_value(self, data):
@@ -118,57 +126,75 @@ class RequestUtil:
             data = str_data
         return data
 
-    def send_request(self, method, url,headers=None, **kwargs):
-        self.base_url = self.base_url + self.replace_load(url);
-        self.last_method = str(method).lower()
-        #处理请求头
-        if headers and isinstance(headers,dict):
-            self.last_header = self.replace_load(headers)
-        #处理请求数据，可能是params，data，json
-        for key,value in kwargs.items():
-            if key in ['params','data','json']:
-                # #替换{{}}格式
-                # value = self.replace_value(value)
-                #替换${}格式
-                value = self.replace_load(value)
-                kwargs[key] = value
-                print(kwargs[key])
+    def send_request(self,name, method, url,headers=None, file=None,**kwargs):
+        try:
+            self.base_url = self.replace_load(self.base_url) + self.replace_load(url)
+            self.last_method = str(method).lower()
+            #处理请求头
+            if headers and isinstance(headers,dict):
+                self.last_header = self.replace_load(headers)
+            #处理请求数据，可能是params，data，json
+            for key,value in kwargs.items():
+                if key in ['params','data','json']:
+                    # #替换{{}}格式
+                    # value = self.replace_value(value)
+                    #替换${}格式
+                    value = self.replace_load(value)
+                    kwargs[key] = value
+            write_log("接口名称：%s"%name)
+            write_log("请求方式：%s"%self.last_method)
+            write_log("请求路径%s"%self.base_url)
+            write_log("请求头%s"%self.last_header)
+            if 'params' in kwargs.keys():
+                write_log("请求参数：%s"%kwargs['params'])
+            elif 'data' in kwargs.keys():
+                write_log("请求参数：%s" % kwargs['data'])
+            elif 'json' in kwargs.keys():
+                write_log("请求参数：%s" % kwargs['json'])
+            write_log("文件上传：%s"%file)
 
-        res = RequestUtil.session.request(method=self.last_method, url=self.base_url,
-                                          headers=self.last_header, **kwargs)
-        return res;
+            res = RequestUtil.session.request(method=self.last_method, url=self.base_url,
+                                              headers=self.last_header, **kwargs)
+            return res;
+        except Exception as f:
+            error_log("发送请求文件异常：%s" % str(traceback.format_exc()))
 
     def validate_result(self, yq_result, sj_result, status_code):
-        #断言是否成功的标记
-        flag = 0
-        if yq_result and  isinstance(yq_result, list):
-            for yq in yq_result:
-                for key,value in dict(yq).items():
-                    #判断断言方式
-                    if key == 'equals':
-                        for assert_key,assert_value in dict(value).items():
-                            if assert_key == 'status_code':
-                                if status_code != assert_value:
-                                    flag = flag +1
-                                    print("断言失败"+assert_key+"不等于"+str(assert_value))
-                            else:
-                                key_list = jsonpath.jsonpath(sj_result,'$..%s'%assert_key)
-                                if key_list:
-                                    if assert_value not in key_list:
-                                        flag = flag + 1
-                                        print("断言失败" + assert_key + "不等于" + str(assert_value))
+        try:
+            write_log("预期结果：%s"%yq_result)
+            write_log("实际结果：%s"%sj_result)
+            #断言是否成功的标记
+            flag = 0
+            if yq_result and  isinstance(yq_result, list):
+                for yq in yq_result:
+                    for key,value in dict(yq).items():
+                        #判断断言方式
+                        if key == 'equals':
+                            for assert_key,assert_value in dict(value).items():
+                                if assert_key == 'status_code':
+                                    if status_code != assert_value:
+                                        flag = flag +1
+                                        error_log("断言失败"+assert_key+"不等于"+str(assert_value))
                                 else:
-                                    flag = flag + 1
-                                    print("断言失败:返回结果中不存在" + assert_key)
-                    elif key=='contains':
-                        if value not in json.dumps(sj_result):
-                            flag = flag + 1
-                            print("断言失败:返回结果中不包含字符串" + value)
-                    else:
-                        print("不支持此断言方式")
-                    # print(key,value)
+                                    key_list = jsonpath.jsonpath(sj_result,'$..%s'%assert_key)
+                                    if key_list:
+                                        if assert_value not in key_list:
+                                            flag = flag + 1
+                                            error_log("断言失败" + assert_key + "不等于" + str(assert_value))
+                                    else:
+                                        flag = flag + 1
+                                        error_log("断言失败:返回结果中不存在" + assert_key)
+                        elif key=='contains':
+                            if value not in json.dumps(sj_result):
+                                flag = flag + 1
+                                error_log("断言失败:返回结果中不包含字符串" + value)
+                        else:
+                            error_log("不支持此断言方式")
+                        # print(key,value)
 
-        assert flag ==0
+            assert flag ==0
+        except Exception as f:
+            error_log("断言异常：%s" % str(traceback.format_exc()))
 
 if __name__ == '__main__':
     # dic = {'method': 'get', 'url': '/cgi-bin/token', 'data': {'grant_type': 'client_credential', 'appid': 'wx74a8627810cfa308', 'secret': 'e40a02f9d79a8097df497e6aaf93ab80'}}

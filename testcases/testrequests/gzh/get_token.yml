@@ -23,7 +23,7 @@
 -
   name: $csv{name}
   desc: 获得token接口
-  base_url: https://api.weixin.qq.com
+  base_url: ${get_base_url(base_gzh_url)}
   parameters:
       name-appid-secret-grant_type-assert_str: data/get_token.csv
   request:
