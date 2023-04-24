@@ -58,7 +58,7 @@ class TestApi:
 
 
     @allure.story("接口名称：木鸢")
-    @pytest.mark.parametrize("caseinfo",read_yaml("./testcases/usermanage/get_token.yml"))
+    @pytest.mark.parametrize("caseinfo",read_yaml("./testcases/usermanage/get_token_case.yml"))
     @pytest.mark.smoke
     def test_muyuan(self, caseinfo):
         allure.dynamic.title(caseinfo['name'])

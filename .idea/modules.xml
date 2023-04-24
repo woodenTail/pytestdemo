@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/../http-frame/.idea/http-frame.iml" filepath="$PROJECT_DIR$/../http-frame/.idea/http-frame.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/pytestdemo.iml" filepath="$PROJECT_DIR$/.idea/pytestdemo.iml" />
     </modules>
   </component>

@@ -7,7 +7,7 @@ from common.request_util import RequestUtil
 
 
 class TestRequest1:
-    @pytest.mark.parametrize('caseinfo',read_testcase_file('/testcases/testrequests/gzh/get_token.yml'))
+    @pytest.mark.parametrize('caseinfo',read_testcase_file('/testcases/testrequests/gzh/get_token_case.yml'))
     def test_get_token(self, caseinfo):
         res = RequestUtil().analysis_yaml(caseinfo)
 
