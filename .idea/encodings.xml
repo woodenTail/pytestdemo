@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Encoding">
-    <file url="file://$PROJECT_DIR$/../http-frame/logs/0fc33bd7-3d28-4ba3-ae71-0b2132f96525.run.log" charset="GBK" />
-    <file url="PROJECT" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/../webcode/class03/brower_util.py" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../webcode/class03/web_01.py" charset="UTF-8" />
+    <file url="PROJECT" charset="UTF-8" />
   </component>
 </project>

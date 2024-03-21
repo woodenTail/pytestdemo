@@ -4,6 +4,8 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/../http-frame/.idea/http-frame.iml" filepath="$PROJECT_DIR$/../http-frame/.idea/http-frame.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/pytestdemo.iml" filepath="$PROJECT_DIR$/.idea/pytestdemo.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../pythonProject2/.idea/pythonProject2.iml" filepath="$PROJECT_DIR$/../pythonProject2/.idea/pythonProject2.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../webcode/.idea/webcode.iml" filepath="$PROJECT_DIR$/../webcode/.idea/webcode.iml" />
     </modules>
   </component>
 </project>
