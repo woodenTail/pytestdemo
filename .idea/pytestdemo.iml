@@ -8,7 +8,7 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="http-frame" />
     <orderEntry type="module" module-name="webcode" />
-    <orderEntry type="module" module-name="pythonProject2" />
+    <orderEntry type="module" module-name="pytest-first" />
   </component>
   <component name="TestRunnerService">
     <option name="PROJECT_TEST_RUNNER" value="py.test" />

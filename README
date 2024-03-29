@@ -1,3 +1,6 @@
+接口自动化规则：
+
+
 1.必须有的四个一级关键字：name,base_url,request,validate
 2.在request一级关键字下必须包含两个二级关键字，method、URL
 3.传参方式：在request一级关键字下，通过二级关键字参数
